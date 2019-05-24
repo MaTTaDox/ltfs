@@ -1,0 +1,9 @@
+#index:
+#    path: /
+#    controller: App\Controller\DefaultController::index
+my_login_check:
+  path: /api/google_login
+  methods: [POST]
+api_login_check:
+  path: /api/google_login_check
+  methods: [POST]

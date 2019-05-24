@@ -1,0 +1,9 @@
+[program:ltfs-job-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php {{ path }}/bin/console tritran:sqs_queue:worker jobQueue
+autostart=true
+autorestart=true
+user=root
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/ltfs-job-worker.log

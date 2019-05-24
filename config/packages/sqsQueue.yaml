@@ -1,0 +1,6 @@
+tritran_sqs_queue:
+  sqs_queue:
+    queues:
+      jobQueue:
+        queue_url: "%env(AWS_SQS_QUEUE)%"
+        worker: 'App\Services\Worker\JobWorker'
