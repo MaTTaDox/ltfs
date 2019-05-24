@@ -28,7 +28,7 @@ class DeployVHostCommand extends Command
         $this->kernel = $kernel;
     }
 
-    protected static $defaultName = 'deploy:vhost';
+    protected static $defaultName = 'deploy:nginx';
 
     protected function configure()
     {
