@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Facades\LogFacade;
 use Exception;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Google_Client;
@@ -55,6 +56,7 @@ class LoginController extends BaseController
             }
 
         } catch (Exception $e) {
+            LogFacade::log('ERROR', $e->getMessage());
         }
 
         return $failureHandler->onAuthenticationFailure($request, new AuthenticationException);
