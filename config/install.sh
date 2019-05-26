@@ -11,6 +11,10 @@ ssh-keyscan github.com >> ~/.ssh/known_hosts
 git clone git://github.com/mattadox/ltfs.git
 cd /var/www/ltfs
 aws s3 cp s3://longterm-fs/.env /var/www/ltfs/.env --region=eu-central-1
+mkdir -p config/jwt
+openssl genrsa -out config/jwt/private.pem -aes256 -passout pass:ltfs 4096
+openssl rsa -pubout -in config/jwt/private.pem -passin pass:ltfs -out config/jwt/public.pem
+chmod 777 config/jwt/*
 composer install
 php bin/console deploy:nginx
 php bin/console deploy:supervisor
