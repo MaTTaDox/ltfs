@@ -20,6 +20,6 @@ security:
                               authenticators:
                                   - lexik_jwt_authentication.jwt_token_authenticator
     access_control:
+        - { path: ^/api/aws_as_sns, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/google_login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
