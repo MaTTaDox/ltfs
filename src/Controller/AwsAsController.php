@@ -2,8 +2,11 @@
 
 namespace App\Controller;
 
+use App\Facades\LogFacade;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
+use Aws\Sns\Message;
+use Aws\Sns\MessageValidator;
 
 class AwsAsController extends BaseController
 {
@@ -12,38 +15,32 @@ class AwsAsController extends BaseController
      */
     public function handleSNS(Request $request)
     {
-        $content = json_decode($request->getContent(), true);
+        $message = Message::fromRawPostData();
 
-        $host = $request->getHost();
-        if (strpos($host, '.amazonaws.com') === false) {
+        $validator = new MessageValidator();
+        if (!$validator->isValid($message)) {
             return $this->renderRest([]);
         }
-        
-        $type = $content['Type'];
+
+
+        $type = $message['Type'];
 
         if (method_exists($this, $type . 'Action')) {
-            $this->{$type . 'Action'}($content);
+            $this->{$type . 'Action'}($message);
         }
+
+        LogFacade::log('WARNING', 'Action not found: ' . $type . 'Action');
 
         return $this->renderRest([]);
     }
 
     public function SubscriptionConfirmationAction($content)
     {
-        $curl = curl_init();
+        file_get_contents($content['SubscribeURL']);
+    }
 
-        curl_setopt_array($curl, [
-            CURLOPT_URL => $content['SubscribeURL'],
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-            CURLOPT_POSTFIELDS => "",
-            CURLOPT_HTTPHEADER => []
-        ]);
-
-        curl_close($curl);
+    public function NotificationAction($content)
+    {
+        LogFacade::log('INFO', 'SNS Notification', $content);
     }
 }

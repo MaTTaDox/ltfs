@@ -1,4 +1,7 @@
 {
+    "aws/aws-php-sns-message-validator": {
+        "version": "1.5.0"
+    },
     "aws/aws-sdk-php": {
         "version": "3.95.0"
     },
