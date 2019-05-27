@@ -15,6 +15,7 @@ class AwsAsController extends BaseController
      */
     public function handleSNS(Request $request)
     {
+        /** @var Message $message */
         $message = Message::fromRawPostData();
 
         $validator = new MessageValidator();
@@ -26,7 +27,7 @@ class AwsAsController extends BaseController
         $type = $message['Type'];
 
         if (method_exists($this, $type . 'Action')) {
-            $this->{$type . 'Action'}($message);
+            $this->{$type . 'Action'}($message->toArray());
         }
 
         LogFacade::log('WARNING', 'Action not found: ' . $type . 'Action');
