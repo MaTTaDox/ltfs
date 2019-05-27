@@ -14,11 +14,12 @@ security:
             stateless: true
             anonymous: true
         api:
-                          pattern:   ^/api
-                          stateless: true
-                          guard:
-                              authenticators:
-                                  - lexik_jwt_authentication.jwt_token_authenticator
+            pattern:   ^/api
+            anonymous: true
+            stateless: true
+            guard:
+                authenticators:
+                    - lexik_jwt_authentication.jwt_token_authenticator
     access_control:
         - { path: ^/api/aws_as_sns, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/google_login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
