@@ -42,6 +42,6 @@ class AwsAsController extends BaseController
 
     public function NotificationAction($content)
     {
-        LogFacade::log('INFO', 'SNS Notification', $content);
+        LogFacade::log('WARNING', 'SNS Notification', $content);
     }
 }
