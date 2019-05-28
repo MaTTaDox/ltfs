@@ -71,7 +71,7 @@ class AwsAsController extends BaseController
             'ips' => $ips
         ]);
 
-        file_put_contents('/etc/nginx/sites-enabled/lb.conf', $template);
+        file_put_contents('/etc/nginx/conf.d/load-balancer.conf', $template);
 
         shell_exec('sudo /etc/init.d/nginx reload');
 
