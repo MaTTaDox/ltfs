@@ -42,38 +42,45 @@ class AwsAsController extends BaseController
 
     public function NotificationAction($content)
     {
-        $ec2Client = new Ec2Client([
-            'version' => 'latest',
-            'region' => 'eu-central-1',
-            'credentials' => [
-                'key' => getenv('AWS_ACCESS_KEY'),
-                'secret' => getenv('AWS_SECRET_KEY')
-            ],
-        ]);
+        try {
+            $ec2Client = new Ec2Client([
+                'version' => 'latest',
+                'region' => 'eu-central-1',
+                'credentials' => [
+                    'key' => getenv('AWS_ACCESS_KEY'),
+                    'secret' => getenv('AWS_SECRET_KEY')
+                ],
+            ]);
 
-        $instances = $ec2Client->describeInstances([
-            'Filters' => [
-                [
-                    'Name' => 'tag:aws:autoscaling:groupName',
-                    'Values' => ['AutoScaling LTFS']
+            $instances = $ec2Client->describeInstances([
+                'Filters' => [
+                    [
+                        'Name' => 'tag:aws:autoscaling:groupName',
+                        'Values' => ['AutoScaling LTFS']
+                    ]
                 ]
-            ]
-        ]);
+            ]);
 
-        $ips = [];
-        foreach ($instances['Reservations'] as $reservation) {
-            foreach ($reservation['Instances'] as $instance) {
-                $ips[] = $instance['PublicIpAddress'];
+            $ips = [];
+            foreach ($instances['Reservations'] as $reservation) {
+                foreach ($reservation['Instances'] as $instance) {
+                    $ips[] = $instance['PublicIpAddress'];
+                }
             }
+
+            $template = $this->render('nginx/lbvhost.twig', [
+                'ips' => $ips
+            ]);
+
+            file_put_contents('/etc/nginx/conf.d/load-balancer.conf', $template);
+
+            shell_exec('sudo /etc/init.d/nginx reload');
+        } catch (\Throwable $e)
+        {
+            LogFacade::log('ERROR', $e->getMessage(), [
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
         }
-
-        $template = $this->render('nginx/lbvhost.twig', [
-            'ips' => $ips
-        ]);
-
-        file_put_contents('/etc/nginx/conf.d/load-balancer.conf', $template);
-
-        shell_exec('sudo /etc/init.d/nginx reload');
-
     }
 }
