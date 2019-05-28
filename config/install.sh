@@ -12,10 +12,11 @@ git clone git://github.com/mattadox/ltfs.git
 cd /var/www/ltfs
 aws s3 cp s3://longterm-fs/.env /var/www/ltfs/.env --region=eu-central-1
 mkdir -p config/jwt
-aws s3 cp s3://longterm-fs/private.pem /var/www/ltfs/config/private.pem --region=eu-central-1
-aws s3 cp s3://longterm-fs/public.pem /var/www/ltfs/config/public.pem --region=eu-central-1
+aws s3 cp s3://longterm-fs/private.pem /var/www/ltfs/config/jwt/private.pem --region=eu-central-1
+aws s3 cp s3://longterm-fs/public.pem /var/www/ltfs/config/jwt/public.pem --region=eu-central-1
 chmod 777 config/jwt/*
 composer install
+rm -f /etc/nginx/sites-enabled/default
 php bin/console deploy:nginx
 php bin/console deploy:supervisor
 php bin/console doctrine:database:create --if-not-exists
