@@ -12,7 +12,7 @@
         error_page 503 /503.html;
         location /503.html{
             add_header Content-Type application/json always;
-            return 503 '{"error": {"status_code": 503,"status": "Service Temporarily Unavailable"}}';
+            return 503 '{"error": {"code": 503,"message": "Service Temporarily Unavailable"}}';
         }
 
         location / {
