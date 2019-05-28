@@ -1,9 +1,11 @@
 http {
+{% if ips|length %}
     upstream myapp1 {
         {% for ip in ips %}
             server {{ ip }}
         {% endfor %}
     }
+{% endif %}
 
     server {
         listen 8082;
