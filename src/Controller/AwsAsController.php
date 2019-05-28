@@ -7,9 +7,22 @@ use Aws\Ec2\Ec2Client;
 use Aws\Sns\Message;
 use Aws\Sns\MessageValidator;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use FOS\RestBundle\View\ViewHandlerInterface;
+use Twig\Environment;
 
 class AwsAsController extends BaseController
 {
+    /**
+     * @var Environment
+     */
+    protected $twig;
+
+    public function __construct(ViewHandlerInterface $handler, Environment $twig)
+    {
+        parent::__construct($handler);
+        $this->twig = $twig;
+    }
+
     /**
      * @Rest\Route("api/aws_as_sns", name="aws_as_sns", methods={"POST"})
      */
@@ -64,19 +77,21 @@ class AwsAsController extends BaseController
             $ips = [];
             foreach ($instances['Reservations'] as $reservation) {
                 foreach ($reservation['Instances'] as $instance) {
+                    if (!isset($instance['PublicIpAddress']) || !$instance['PublicIpAddress']) {
+                        continue;
+                    }
                     $ips[] = $instance['PublicIpAddress'];
                 }
             }
 
-            $template = $this->render('nginx/lbvhost.twig', [
+            $template = $this->twig->render('nginx/lbvhost.twig', [
                 'ips' => $ips
             ]);
 
             file_put_contents('/etc/nginx/conf.d/load-balancer.conf', $template);
 
             shell_exec('sudo /etc/init.d/nginx reload');
-        } catch (\Throwable $e)
-        {
+        } catch (\Throwable $e) {
             LogFacade::log('ERROR', $e->getMessage(), [
                 'line' => $e->getLine(),
                 'file' => $e->getFile()
