@@ -13,7 +13,7 @@ http {
         location / {
             {% if ips|length %}
             proxy_pass http://myapp1;
-            {% elseif %}
+            {% else %}
                 return 503;
             {% endif %}
         }
