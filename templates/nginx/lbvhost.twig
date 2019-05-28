@@ -1,10 +1,8 @@
 http {
     upstream myapp1 {
         {% for ip in ips %}
-            server ip
+            server {{ ip }}
         {% endfor %}
-        server srv2.example.com;
-        server srv3.example.com;
     }
 
     server {
