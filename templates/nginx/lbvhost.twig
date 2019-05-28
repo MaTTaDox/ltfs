@@ -1,0 +1,21 @@
+http {
+    upstream myapp1 {
+        {% for ip in ips %}
+            server ip
+        {% endfor %}
+        server srv2.example.com;
+        server srv3.example.com;
+    }
+
+    server {
+        listen 8082;
+
+        location / {
+            {% if ips|length %}
+            proxy_pass http://myapp1;
+            {% elseif %}
+                return 503;
+            {% endif %}
+        }
+    }
+}

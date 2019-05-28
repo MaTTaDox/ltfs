@@ -3,17 +3,17 @@
 namespace App\Controller;
 
 use App\Facades\LogFacade;
-use FOS\RestBundle\Controller\Annotations as Rest;
-use Symfony\Component\HttpFoundation\Request;
+use Aws\Ec2\Ec2Client;
 use Aws\Sns\Message;
 use Aws\Sns\MessageValidator;
+use FOS\RestBundle\Controller\Annotations as Rest;
 
 class AwsAsController extends BaseController
 {
     /**
      * @Rest\Route("api/aws_as_sns", name="aws_as_sns", methods={"POST"})
      */
-    public function handleSNS(Request $request)
+    public function handleSNS()
     {
         /** @var Message $message */
         $message = Message::fromRawPostData();
@@ -42,6 +42,38 @@ class AwsAsController extends BaseController
 
     public function NotificationAction($content)
     {
-        LogFacade::log('WARNING', 'SNS Notification', $content);
+        $ec2Client = new Ec2Client([
+            'version' => 'latest',
+            'region' => 'eu-central-1',
+            'credentials' => [
+                'key' => getenv('AWS_ACCESS_KEY'),
+                'secret' => getenv('AWS_SECRET_KEY')
+            ],
+        ]);
+
+        $instances = $ec2Client->describeInstances([
+            'Filters' => [
+                [
+                    'Name' => 'tag:aws:autoscaling:groupName',
+                    'Values' => ['AutoScaling LTFS']
+                ]
+            ]
+        ]);
+
+        $ips = [];
+        foreach ($instances['Reservations'] as $reservation) {
+            foreach ($reservation['Instances'] as $instance) {
+                $ips[] = $instance['PublicIpAddress'];
+            }
+        }
+
+        $template = $this->render('nginx/lbvhost.twig', [
+            'ips' => $ips
+        ]);
+
+        file_put_contents('/etc/nginx/sites-enabled/lb.conf', $template);
+
+        shell_exec('sudo /etc/init.d/nginx reload');
+
     }
 }
