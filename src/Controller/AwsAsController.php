@@ -36,7 +36,6 @@ class AwsAsController extends BaseController
             return $this->renderRest([]);
         }
 
-
         $type = $message['Type'];
 
         if (method_exists($this, $type . 'Action')) {

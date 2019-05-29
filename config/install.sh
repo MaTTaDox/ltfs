@@ -21,4 +21,5 @@ php bin/console deploy:nginx
 php bin/console deploy:supervisor
 php bin/console doctrine:database:create --if-not-exists
 php bin/console doctrine:migrations:migrate -n --allow-no-migration
+aws sns publish --topic-arn "arn:aws:sns:eu-central-1:040427673238:as-ltfs" --message "{}"
 EOF
